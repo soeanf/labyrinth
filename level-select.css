@@ -1,0 +1,216 @@
+.level-select-container {
+    padding: 2vh 2vw;
+    height: 98dvh;
+    height: 98vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.header {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3vh;
+}
+
+.header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.back-button {
+    background: #667eea;
+    color: #fff;
+    border: 2px solid #5568d3;
+    padding: 1vh 2vw;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5vw;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+    background: #5568d3;
+    border-color: #4451b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 2vh 2vw;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 3vh;
+}
+
+.level-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1.5vh;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh;
+}
+
+.level-card.unlocked {
+    cursor: pointer;
+}
+
+.level-card.unlocked:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.level-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.level-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1a1a2e;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5vh 1vw;
+    border-radius: 6px;
+    margin-bottom: 0.5vh;
+    text-align: center;
+}
+
+.level-thumbnail {
+    width: 80%;
+    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    gap: 1px;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.lock-container {
+    width: 80%;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1vh;
+}
+
+.thumbnail-cell {
+    width: 100%;
+    height: 100%;
+}
+
+.thumbnail-cell.water {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.thumbnail-cell.sand {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.thumbnail-cell.start {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.thumbnail-cell.goal {
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.lock-icon {
+    font-size: 3rem;
+}
+
+.lock-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+}
+
+.reset-container {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    justify-content: center;
+    padding: 2vh 0;
+}
+
+.reset-btn {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fff;
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    padding: 1.5vh 3vw;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 2vw;
+    margin-top: 2vh;
+}
+
+.modal-buttons button {
+    flex: 1;
+}
+
+/* Mobile Anpassungen */
+@media (max-width: 768px) {
+    .level-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1.5vh 2vw;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .back-button {
+        font-size: 1rem;
+        padding: 0.8vh 1.5vw;
+    }
+
+    .level-number {
+        font-size: 1rem;
+    }
+
+    .lock-icon {
+        font-size: 2.5rem;
+    }
+    
+    .lock-text {
+        font-size: 0.9rem;
+    }
+}

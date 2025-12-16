@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Editor</title>
+    <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+    <div class="editor-container">
+        <div class="header">
+            <h1>Level Editor</h1>
+            <div class="header-buttons">
+                <button id="clearBtn" class="btn">Leeren</button>
+                <button id="saveBtn" class="btn btn-primary">Speichern</button>
+                <a href="index.html" class="btn">Zurück</a>
+            </div>
+        </div>
+
+        <div class="editor-content">
+            <div class="tools-panel">
+                <h3>Werkzeuge</h3>
+                <div class="tool-buttons">
+                    <button class="tool-btn active" data-tool="sand">
+                        <div class="tool-preview sand"></div>
+                        Sand
+                    </button>
+                    <button class="tool-btn" data-tool="water">
+                        <div class="tool-preview water"></div>
+                        Wasser
+                    </button>
+                    <button class="tool-btn" data-tool="start">
+                        <div class="tool-preview start"></div>
+                        Start
+                    </button>
+                    <button class="tool-btn" data-tool="goal">
+                        <div class="tool-preview goal"></div>
+                        Ziel
+                    </button>
+                </div>
+
+                <div class="info-panel">
+                    <h3>Hinweise</h3>
+                    <ul>
+                        <li>Klicke auf ein Feld, um es zu bearbeiten</li>
+                        <li>Start und Ziel müssen gesetzt sein</li>
+                        <li>Mindestens ein Sand-Feld erforderlich</li>
+                        <li>Level-Code wird automatisch generiert</li>
+                    </ul>
+                </div>
+
+                <div id="levelCode" class="level-code">
+                    <h3>Level-Code</h3>
+                    <div id="codeDisplay">Noch nicht gespeichert</div>
+                </div>
+            </div>
+
+            <div class="grid-container">
+                <div id="editorGrid" class="editor-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Erfolgs-Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>✓ Level gespeichert!</h2>
+            <p>Dein Level wurde erfolgreich gespeichert.</p>
+            <p><strong>Level-Code:</strong></p>
+            <div id="savedCode" class="saved-code"></div>
+            <p class="info-text">Speichere diesen Code, um das Level später zu spielen!</p>
+            <button id="closeModalBtn" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+
+    <!-- Bestätigungs-Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ Level leeren?</h2>
+            <p>Möchtest du wirklich das gesamte Level leeren?</p>
+            <p class="info-text">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            <div style="display: flex; gap: 1vw; justify-content: center; margin-top: 2vh;">
+                <button id="confirmClearBtn" class="btn btn-primary">Ja, leeren</button>
+                <button id="cancelClearBtn" class="btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="userIdDisplay" class="user-id-display"></div>
+    <script src="user-id.js"></script>
+    <script src="editor.js"></script>
+</body>
+</html>

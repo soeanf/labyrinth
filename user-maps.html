@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Maps - Labyrinth</title>
+    <link rel="stylesheet" href="user-maps.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>User Maps</h1>
+            <div class="header-buttons">
+                <a href="index.html" class="btn">Zurück</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2>Level-Code eingeben</h2>
+                <div class="code-input-group">
+                    <input type="text" id="levelCodeInput" placeholder="6-stelliger Code (z.B. A4K9X2)" maxlength="6">
+                    <button id="loadBtn" class="btn btn-primary">Laden</button>
+                </div>
+            </div>
+
+            <div class="divider">
+                <span>ODER</span>
+            </div>
+
+            <div class="maps-section">
+                <h2>Verfügbare User Maps</h2>
+                <div id="mapsList" class="maps-list">
+                    <p class="loading">Lade verfügbare Maps...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lade-Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <h2>Level wird geladen...</h2>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div id="userIdDisplay" class="user-id-display"></div>
+    <script src="user-id.js"></script>
+    <script src="utils.js"></script>
+    <script src="user-maps.js"></script>
+</body>
+</html>

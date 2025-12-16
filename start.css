@@ -1,0 +1,196 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2vh;
+}
+
+.start-container {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.title-section {
+    text-align: center;
+    margin-bottom: 5vh;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.game-title {
+    font-size: 8vh;
+    color: white;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    margin-bottom: 2vh;
+    letter-spacing: 1vw;
+}
+
+.subtitle {
+    font-size: 2.5vh;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 900px;
+    margin: 0 auto 5vh auto;
+    gap: 3vh 2vw;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.menu-card {
+    background: white;
+    border-radius: 20px;
+    padding: 4vh 2vw;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.menu-card:hover::before {
+    left: 100%;
+}
+
+.menu-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.card-icon {
+    font-size: 8vh;
+    margin-bottom: 2vh;
+    transition: transform 0.3s;
+}
+
+.menu-card:hover .card-icon {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.menu-card h2 {
+    font-size: 3vh;
+    margin-bottom: 1.5vh;
+    color: #333;
+}
+
+.menu-card p {
+    font-size: 1.8vh;
+    color: #666;
+    line-height: 1.5;
+}
+
+.menu-card.tutorial {
+    border-top: 5px solid #3498db;
+}
+
+.menu-card.game {
+    border-top: 5px solid #2ecc71;
+}
+
+.menu-card.editor {
+    border-top: 5px solid #e67e22;
+}
+
+.menu-card.user-maps {
+    border-top: 5px solid #9b59b6;
+}
+
+.footer {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.6vh;
+    animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 6vh;
+        letter-spacing: 0.5vw;
+    }
+
+    .subtitle {
+        font-size: 2vh;
+    }
+
+    .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 2vh;
+    }
+
+    .menu-card {
+        padding: 3vh 4vw;
+    }
+}
+
+/* User-ID-Anzeige */
+.user-id-display {
+    position: fixed;
+    bottom: 1vh;
+    right: 1vw;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5vh 1vw;
+    border-radius: 5px;
+    font-size: 1.2vh;
+    color: #666;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    cursor: help;
+}

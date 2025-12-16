@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Führ mich durchs Labyrinth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1>Führ mich durchs Labyrinth</h1>
+            <a href="javascript:history.back()" class="back-btn">← Zurück</a>
+        </div>
+        
+        <!-- Anzeigen -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Level:</span>
+                <span id="levelNumber" class="stat-value">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Fehlversuche:</span>
+                <span id="failCount" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <!-- Bereiche nebeneinander -->
+        <div class="game-layout">
+            <!-- Spielfeld -->
+            <div class="game-area">
+                <div id="gameGrid" class="game-grid"></div>
+            </div>
+
+            <!-- Anweisungsbereich -->
+            <div class="controls-section">
+            <h2>Anweisungen</h2>
+            <div class="command-buttons">
+                <button class="command-btn" data-command="forward">
+                    <span class="arrow">→</span>
+                    <span>Vorwärts</span>
+                </button>
+                <button class="command-btn" data-command="left">
+                    <span class="arrow">↰</span>
+                    <span>Links drehen</span>
+                </button>
+                <button class="command-btn" data-command="right">
+                    <span class="arrow">↱</span>
+                    <span>Rechts drehen</span>
+                </button>
+                <button class="command-btn" data-command="jump">
+                    <span class="arrow">⇒</span>
+                    <span>Springen</span>
+                </button>
+            </div>
+            </div>
+
+            <!-- Queue -->
+            <div class="queue-section">
+                <h2>Reihenfolge</h2>
+                <div id="commandQueue" class="command-queue"></div>
+                <div class="queue-controls">
+                    <button id="startBtn" class="start-btn">Start</button>
+                    <button id="clearBtn" class="clear-btn">Reihenfolge leeren</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gewinn-Modal -->
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 Glückwunsch! 🎉</h2>
+            <p>Du hast das Level geschafft!</p>
+            <button id="nextLevelBtn" class="next-level-btn">Nächstes Level</button>
+        </div>
+    </div>
+
+    <!-- Wasser-Modal -->
+    <div id="waterModal" class="modal">
+        <div class="modal-content">
+            <h2>💦 Ins Wasser gefallen! 💦</h2>
+            <p>Du bist ins Wasser gefallen und musst zurück zum Start.</p>
+            <button id="retryBtn" class="retry-btn">Level neu versuchen</button>
+        </div>
+    </div>
+
+    <!-- Alle Level geschafft Modal -->
+    <div id="completeModal" class="modal">
+        <div class="modal-content">
+            <h2>🏆 Herzlichen Glückwunsch! 🏆</h2>
+            <p id="completeMessage">Du hast alle Level geschafft!</p>
+            <button id="backToMenuBtn" class="next-level-btn">Zurück zum Hauptmenü</button>
+        </div>
+    </div>
+
+    <div id="userIdDisplay" class="user-id-display"></div>
+    <script src="user-id.js"></script>
+    <script src="utils.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

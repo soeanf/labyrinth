@@ -1,0 +1,38 @@
+{
+    "start": "1x2",
+    "goal": "10x7",
+    "sand": [
+        "2x2",
+        "3x2",
+        "4x2",
+        "5x2",
+        "6x2",
+        "6x3",
+        "6x4",
+        "2x6",
+        "3x6",
+        "4x6",
+        "6x6",
+        "2x7",
+        "9x7",
+        "2x8",
+        "9x8",
+        "2x9",
+        "3x9",
+        "4x9",
+        "5x9",
+        "6x9",
+        "7x9",
+        "8x9",
+        "9x9"
+    ],
+    "creator": {
+        "userId": "mj91tczjpa02u9whn",
+        "userAgent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/143.0.0.0 Safari\/537.36",
+        "platform": "Win32",
+        "language": "de-DE",
+        "screenResolution": "2560x1440",
+        "timestamp": "2025-12-16T21:03:57.381Z",
+        "ip": "::1"
+    }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level-Auswahl - Labyrinth</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="level-select.css">
+</head>
+<body>
+    <div class="container level-select-container">
+        <div class="header">
+            <a href="index.html" class="back-button">← Zurück</a>
+            <h1>Level-Auswahl</h1>
+        </div>
+
+        <div class="level-grid" id="levelGrid">
+            <!-- Wird dynamisch gefüllt -->
+        </div>
+
+        <!-- Fortschritt zurücksetzen -->
+        <div class="reset-container">
+            <button id="resetProgressBtn" class="reset-btn">Fortschritt zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Bestätigungs-Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ Fortschritt zurücksetzen?</h2>
+            <p>Möchtest du wirklich deinen gesamten Fortschritt zurücksetzen? Alle freigeschalteten Level werden wieder gesperrt.</p>
+            <div class="modal-buttons">
+                <button id="confirmResetBtn" class="retry-btn">Ja, zurücksetzen</button>
+                <button id="cancelResetBtn" class="next-level-btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="userIdDisplay" class="user-id-display"></div>
+    <script src="user-id.js"></script>
+    <script src="utils.js"></script>
+    <script src="level-select.js"></script>
+</body>
+</html>

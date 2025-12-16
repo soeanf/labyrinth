@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labyrinth - Hauptmenü</title>
+    <link rel="stylesheet" href="start.css">
+</head>
+<body>
+    <div class="start-container">
+        <div class="title-section">
+            <h1 class="game-title">🎮 LABYRINTH</h1>
+            <p class="subtitle">Programmiere deinen Weg zum Ziel</p>
+        </div>
+
+        <div class="menu-grid">
+            <a href="game.html?tutorial=true" class="menu-card tutorial">
+                <div class="card-icon">📚</div>
+                <h2>Tutorial</h2>
+                <p>Lerne das Spiel mit 3 Tutorial-Leveln kennen</p>
+            </a>
+
+            <a href="level-select.html" class="menu-card game">
+                <div class="card-icon">🎯</div>
+                <h2>Spiel</h2>
+                <p>Wähle dein Level und erreiche das Ziel</p>
+            </a>
+
+            <a href="editor.html" class="menu-card editor">
+                <div class="card-icon">🛠️</div>
+                <h2>Level Editor</h2>
+                <p>Erstelle deine eigenen Level und teile sie</p>
+            </a>
+
+            <a href="user-maps.html" class="menu-card user-maps">
+                <div class="card-icon">🗺️</div>
+                <h2>User Maps</h2>
+                <p>Lade und spiele von anderen erstellte Level</p>
+            </a>
+        </div>
+    </div>
+    <div id="userIdDisplay" class="user-id-display"></div>
+    <script src="user-id.js"></script>
+</body>
+</html>
