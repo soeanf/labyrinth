@@ -2,8 +2,6 @@
 
 Ein browserbasiertes Lernspiel für den Informatikunterricht in Klasse 5 zum Thema **Handlungsabläufe und algorithmisches Denken**.
 
-![Labyrinth Game](screenshot.png)
-
 ## 📋 Über das Projekt
 
 Labyrinth ist ein pädagogisches Spiel, das Schüler:innen spielerisch an grundlegende Programmierkonzepte heranführt. Durch das Erstellen von Befehlssequenzen lernen sie:
