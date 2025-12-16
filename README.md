@@ -53,7 +53,7 @@ Die Befehle werden per Drag & Drop in eine Warteschlange gezogen und dann gemein
 
 1. Repository klonen oder downloaden:
 ```bash
-git clone https://github.com/soerenf/labyrinth.git
+git clone https://github.com/soeanf/labyrinth.git
 cd labyrinth
 ```
 
