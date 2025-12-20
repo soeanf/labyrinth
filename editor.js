@@ -21,6 +21,8 @@ const confirmClearBtn = document.getElementById('confirmClearBtn');
 const cancelClearBtn = document.getElementById('cancelClearBtn');
 const duplicateModal = document.getElementById('duplicateModal');
 const closeDuplicateBtn = document.getElementById('closeDuplicateBtn');
+const unsolvableModal = document.getElementById('unsolvableModal');
+const closeUnsolvableBtn = document.getElementById('closeUnsolvableBtn');
 const codeDisplay = document.getElementById('codeDisplay');
 const savedCodeDisplay = document.getElementById('savedCode');
 
@@ -111,6 +113,10 @@ function setupEventListeners() {
     closeDuplicateBtn.addEventListener('click', () => {
         duplicateModal.classList.remove('active');
     });
+    
+    closeUnsolvableBtn.addEventListener('click', () => {
+        unsolvableModal.classList.remove('active');
+    });
 }
 
 // Zelle anklicken
@@ -189,6 +195,80 @@ function clearGrid() {
     codeDisplay.textContent = 'Noch nicht gespeichert';
 }
 
+// Prüfe ob die Karte lösbar ist (BFS-Pathfinding mit Sprung-Option)
+function isMapSolvable() {
+    if (!startPos || !goalPos) {
+        return false;
+    }
+
+    // BFS-Queue initialisieren
+    const queue = [{ x: startPos.x, y: startPos.y }];
+    const visited = new Set();
+    visited.add(`${startPos.x},${startPos.y}`);
+
+    // Bewegungsrichtungen: oben, rechts, unten, links
+    const directions = [
+        { dx: 0, dy: -1 },
+        { dx: 1, dy: 0 },
+        { dx: 0, dy: 1 },
+        { dx: -1, dy: 0 }
+    ];
+
+    while (queue.length > 0) {
+        const current = queue.shift();
+
+        // Ziel erreicht?
+        if (current.x === goalPos.x && current.y === goalPos.y) {
+            return true;
+        }
+
+        // Alle vier Richtungen prüfen
+        for (const dir of directions) {
+            // Normale Bewegung (1 Feld)
+            const newX = current.x + dir.dx;
+            const newY = current.y + dir.dy;
+            const key = `${newX},${newY}`;
+
+            // Prüfe normale Bewegung
+            if (!visited.has(key) && 
+                newX >= 0 && newX < GRID_WIDTH && 
+                newY >= 0 && newY < GRID_HEIGHT) {
+                
+                const cellData = getGridData(newX, newY);
+                if (cellData && (cellData.type === 'sand' || cellData.type === 'start' || cellData.type === 'goal')) {
+                    visited.add(key);
+                    queue.push({ x: newX, y: newY });
+                }
+            }
+
+            // Sprung-Bewegung (über Wasser, 2 Felder)
+            const jumpX = current.x + dir.dx * 2;
+            const jumpY = current.y + dir.dy * 2;
+            const jumpKey = `${jumpX},${jumpY}`;
+
+            // Prüfe ob Sprung möglich ist
+            if (!visited.has(jumpKey) && 
+                jumpX >= 0 && jumpX < GRID_WIDTH && 
+                jumpY >= 0 && jumpY < GRID_HEIGHT) {
+                
+                // Das erste Feld muss Wasser sein
+                const middleCell = getGridData(newX, newY);
+                if (middleCell && middleCell.type === 'water') {
+                    // Das Zielfeld muss begehbar sein
+                    const targetCell = getGridData(jumpX, jumpY);
+                    if (targetCell && (targetCell.type === 'sand' || targetCell.type === 'start' || targetCell.type === 'goal')) {
+                        visited.add(jumpKey);
+                        queue.push({ x: jumpX, y: jumpY });
+                    }
+                }
+            }
+        }
+    }
+
+    // Kein Pfad gefunden
+    return false;
+}
+
 // Hash-Funktion für Level-Daten
 function generateLevelHash(levelData) {
     // Erstelle einen eindeutigen String aus den Level-Daten
@@ -239,6 +319,12 @@ async function saveLevel() {
     const sandCells = gridData.filter(cell => cell.type === 'sand');
     if (sandCells.length === 0) {
         showValidationModal('Bitte setze mindestens ein Sand-Feld!');
+        return;
+    }
+
+    // Prüfe ob die Karte lösbar ist
+    if (!isMapSolvable()) {
+        unsolvableModal.classList.add('active');
         return;
     }
 
