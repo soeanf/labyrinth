@@ -107,10 +107,19 @@ function handleCellClick(e) {
     const y = parseInt(e.target.dataset.y);
     const cell = e.target;
 
-    // Vorheriges Start/Ziel zurücksetzen wenn neues gesetzt wird
+    // Wenn Start/Ziel überschrieben wird, Position zurücksetzen
+    if (startPos && x === startPos.x && y === startPos.y) {
+        startPos = null;
+    }
+    if (goalPos && x === goalPos.x && y === goalPos.y) {
+        goalPos = null;
+    }
+
+    // Vorheriges Start/Ziel zurücksetzen wenn neues gesetzt wird (nur wenn es noch Start/Ziel ist)
     if (currentTool === 'start' && startPos) {
         const oldStartCell = getCellElement(startPos.x, startPos.y);
-        if (oldStartCell) {
+        const oldStartData = getGridData(startPos.x, startPos.y);
+        if (oldStartCell && oldStartData && oldStartData.type === 'start') {
             oldStartCell.className = 'editor-cell water';
             updateGridData(startPos.x, startPos.y, 'water');
         }
@@ -118,7 +127,8 @@ function handleCellClick(e) {
 
     if (currentTool === 'goal' && goalPos) {
         const oldGoalCell = getCellElement(goalPos.x, goalPos.y);
-        if (oldGoalCell) {
+        const oldGoalData = getGridData(goalPos.x, goalPos.y);
+        if (oldGoalCell && oldGoalData && oldGoalData.type === 'goal') {
             oldGoalCell.className = 'editor-cell water';
             updateGridData(goalPos.x, goalPos.y, 'water');
         }
@@ -141,6 +151,12 @@ function updateGridData(x, y, type) {
     if (gridData[index]) {
         gridData[index].type = type;
     }
+}
+
+// Grid-Daten abrufen
+function getGridData(x, y) {
+    const index = y * GRID_WIDTH + x;
+    return gridData[index];
 }
 
 // Zell-Element finden
