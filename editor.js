@@ -17,6 +17,8 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 const confirmModal = document.getElementById('confirmModal');
 const confirmClearBtn = document.getElementById('confirmClearBtn');
 const cancelClearBtn = document.getElementById('cancelClearBtn');
+const duplicateModal = document.getElementById('duplicateModal');
+const closeDuplicateBtn = document.getElementById('closeDuplicateBtn');
 const codeDisplay = document.getElementById('codeDisplay');
 const savedCodeDisplay = document.getElementById('savedCode');
 
@@ -93,6 +95,10 @@ function setupEventListeners() {
     cancelClearBtn.addEventListener('click', () => {
         confirmModal.classList.remove('active');
     });
+    
+    closeDuplicateBtn.addEventListener('click', () => {
+        duplicateModal.classList.remove('active');
+    });
 }
 
 // Zelle anklicken
@@ -155,22 +161,56 @@ function clearGrid() {
     codeDisplay.textContent = 'Noch nicht gespeichert';
 }
 
+// Hash-Funktion für Level-Daten
+function generateLevelHash(levelData) {
+    // Erstelle einen eindeutigen String aus den Level-Daten
+    const dataString = JSON.stringify({
+        start: levelData.start,
+        goal: levelData.goal,
+        sand: levelData.sand.sort() // Sortieren um Reihenfolge zu normalisieren
+    });
+    
+    // Einfache Hash-Funktion
+    let hash = 0;
+    for (let i = 0; i < dataString.length; i++) {
+        const char = dataString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString();
+}
+
+// Prüfe ob Level bereits gespeichert wurde
+function isLevelAlreadySaved(levelHash) {
+    const savedMaps = JSON.parse(localStorage.getItem('labyrinth_saved_maps') || '[]');
+    return savedMaps.includes(levelHash);
+}
+
+// Level-Hash zur Liste gespeicherter Karten hinzufügen
+function addSavedLevelHash(levelHash) {
+    const savedMaps = JSON.parse(localStorage.getItem('labyrinth_saved_maps') || '[]');
+    if (!savedMaps.includes(levelHash)) {
+        savedMaps.push(levelHash);
+        localStorage.setItem('labyrinth_saved_maps', JSON.stringify(savedMaps));
+    }
+}
+
 // Level speichern
 async function saveLevel() {
     // Validierung
     if (!startPos) {
-        alert('Bitte setze ein Start-Feld!');
+        showValidationModal('Bitte setze ein Start-Feld!');
         return;
     }
 
     if (!goalPos) {
-        alert('Bitte setze ein Ziel-Feld!');
+        showValidationModal('Bitte setze ein Ziel-Feld!');
         return;
     }
 
     const sandCells = gridData.filter(cell => cell.type === 'sand');
     if (sandCells.length === 0) {
-        alert('Bitte setze mindestens ein Sand-Feld!');
+        showValidationModal('Bitte setze mindestens ein Sand-Feld!');
         return;
     }
 
@@ -181,6 +221,13 @@ async function saveLevel() {
         goal: `${goalPos.x}x${goalPos.y}`,
         sand: sandCells.map(cell => `${cell.x}x${cell.y}`)
     };
+
+    // Prüfe ob diese Karte bereits gespeichert wurde
+    const levelHash = generateLevelHash(levelData);
+    if (isLevelAlreadySaved(levelHash)) {
+        duplicateModal.classList.add('active');
+        return; // Benutzer kann nicht erneut speichern
+    }
 
     // 6-stelligen Code generieren
     const levelCode = generateLevelCode();
@@ -212,16 +259,34 @@ async function saveLevel() {
         const result = await response.json();
 
         if (result.success) {
+            // Hash zur Liste gespeicherter Karten hinzufügen
+            addSavedLevelHash(levelHash);
+            
             // Erfolg anzeigen
             codeDisplay.textContent = levelCode;
             savedCodeDisplay.textContent = levelCode;
             successModal.classList.add('active');
         } else {
-            alert('Fehler beim Speichern: ' + result.error);
+            showValidationModal('Fehler beim Speichern: ' + result.error);
         }
     } catch (error) {
-        alert('Fehler beim Speichern: ' + error.message);
+        showValidationModal('Fehler beim Speichern: ' + error.message);
     }
+}
+
+// Validierungsfehler anzeigen
+function showValidationModal(message) {
+    // Temporäres Modal für Validierungsfehler
+    const tempModal = document.createElement('div');
+    tempModal.className = 'modal active';
+    tempModal.innerHTML = `
+        <div class="modal-content">
+            <h2>⚠️ Hinweis</h2>
+            <p>${message}</p>
+            <button class="btn btn-primary" onclick="this.closest('.modal').remove()">OK</button>
+        </div>
+    `;
+    document.body.appendChild(tempModal);
 }
 
 // 6-stelligen Level-Code generieren
