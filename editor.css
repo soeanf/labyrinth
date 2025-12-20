@@ -125,6 +125,21 @@ body {
     background-color: #f4d03f;
 }
 
+.tool-preview.longjump {
+    background-color: #f39c12;
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-preview.longjump::after {
+    content: '👟';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2em;
+}
+
 .tool-preview.water {
     background-color: #4a90e2;
 }
@@ -216,6 +231,21 @@ body {
 
 .editor-cell.water {
     background-color: #4a90e2;
+}
+
+.editor-cell.longjump {
+    background-color: #f39c12;
+    position: relative;
+}
+
+.editor-cell.longjump::after {
+    content: '👟';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5vh;
+    pointer-events: none;
 }
 
 .editor-cell.start {

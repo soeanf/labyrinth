@@ -13,6 +13,9 @@ let playerDirection = 0; // 0=Nord, 1=Ost, 2=Süd, 3=West
 let commandQueue = [];
 let isRunning = false;
 let levelData = null;
+let longjumpCount = 0; // Anzahl gesammelter Weitsprungs
+let longjumpFields = []; // Positionen der Weitsprung-Felder
+let usedLongjumps = 0; // Anzahl bereits verwendeter Weitsprünge in dieser Runde
 
 // Richtungssymbole
 const DIRECTION_ARROWS = ['↑', '→', '↓', '←'];
@@ -32,6 +35,8 @@ const completeModal = document.getElementById('completeModal');
 const backToMenuBtn = document.getElementById('backToMenuBtn');
 const completeMessage = document.getElementById('completeMessage');
 const commandButtons = document.querySelectorAll('.command-btn');
+const longjumpBtn = document.getElementById('longjumpBtn');
+const longjumpCountEl = document.getElementById('longjumpCount');
 
 // Initialisierung
 init();
@@ -247,8 +252,32 @@ function setupLevel() {
         cell.className = 'grid-cell sand';
     });
 
+    // Weitsprung-Felder (mit Offset)
+    longjumpFields = [];
+    if (levelData.longjump && Array.isArray(levelData.longjump)) {
+        levelData.longjump.forEach(coordStr => {
+            const coord = parseCoordinate(coordStr);
+            const cell = getCellAt(coord.x + LEVEL_OFFSET, coord.y + LEVEL_OFFSET);
+            cell.className = 'grid-cell longjump';
+            longjumpFields.push({ x: coord.x + LEVEL_OFFSET, y: coord.y + LEVEL_OFFSET });
+            
+            // Symbol hinzufügen
+            const symbol = document.createElement('div');
+            symbol.className = 'longjump-symbol';
+            symbol.textContent = '👟'; // Sneaker/Schuh-Emoji
+            cell.appendChild(symbol);
+        });
+    }
+    
+    // Weitsprung-Zähler zurücksetzen
+    longjumpCount = 0;
+    usedLongjumps = 0;
+    
     // Spieler platzieren
     updatePlayerDisplay();
+    
+    // Weitsprung-Button initialisieren
+    updateLongjumpButton();
 }
 
 // Zelle an Position holen
@@ -285,6 +314,65 @@ function updatePlayerDisplay() {
     }
 }
 
+// Prüfe ob Spieler auf Weitsprung-Feld steht
+function checkLongjumpPickup() {
+    const fieldIndex = longjumpFields.findIndex(field => 
+        field.x === playerPosition.x && field.y === playerPosition.y
+    );
+    
+    if (fieldIndex !== -1) {
+        // Weitsprung gefunden!
+        longjumpCount++;
+        longjumpFields.splice(fieldIndex, 1); // Aus Liste entfernen
+        
+        // Symbol von Zelle entfernen
+        const cell = getCellAt(playerPosition.x, playerPosition.y);
+        const symbol = cell.querySelector('.longjump-symbol');
+        if (symbol) {
+            symbol.remove();
+        }
+    }
+}
+
+// Prüfe ob Spieler auf Weitsprung-Feld steht
+function checkLongjumpPickup() {
+    const fieldIndex = longjumpFields.findIndex(field => 
+        field.x === playerPosition.x && field.y === playerPosition.y
+    );
+    
+    if (fieldIndex !== -1) {
+        // Weitsprung gefunden!
+        longjumpCount++;
+        longjumpFields.splice(fieldIndex, 1); // Aus Liste entfernen
+        
+        // Symbol von Zelle entfernen
+        const cell = getCellAt(playerPosition.x, playerPosition.y);
+        const symbol = cell.querySelector('.longjump-symbol');
+        if (symbol) {
+            symbol.remove();
+        }
+    }
+}
+
+// Aktualisiere Weitsprung-Button Status
+function updateLongjumpButton() {
+    // Zähle wie viele longjump-Befehle bereits in der Queue sind
+    const longjumpInQueue = commandQueue.filter(cmd => cmd === 'longjump').length;
+    
+    // Maximale Anzahl = Anzahl der Weitsprung-Felder auf der Map
+    const maxLongjumps = (levelData && levelData.longjump) ? levelData.longjump.length : 0;
+    
+    // Verfügbare Zählung anzeigen
+    if (longjumpCountEl) {
+        longjumpCountEl.textContent = `${longjumpInQueue}/${maxLongjumps}`;
+    }
+    
+    // Button deaktivieren wenn Limit erreicht oder während Ausführung
+    if (longjumpBtn) {
+        longjumpBtn.disabled = longjumpInQueue >= maxLongjumps || isRunning;
+    }
+}
+
 // Befehl zur Queue hinzufügen
 function addCommandToQueue(command) {
     const queueItem = document.createElement('div');
@@ -313,6 +401,10 @@ function addCommandToQueue(command) {
         case 'jump':
             arrow.textContent = '⇒';
             label.textContent = 'Springen';
+            break;
+        case 'longjump':
+            arrow.textContent = '👟';
+            label.textContent = 'Weitsprung';
             break;
     }
 
@@ -358,6 +450,11 @@ function addCommandToQueue(command) {
     commandQueueEl.appendChild(queueItem);
     commandQueue.push(command);
     updateQueueClass();
+    
+    // Weitsprung-Button aktualisieren wenn longjump hinzugefügt
+    if (command === 'longjump') {
+        updateLongjumpButton();
+    }
 }
 
 // Queue leeren
@@ -365,6 +462,7 @@ function clearQueue() {
     commandQueueEl.innerHTML = '';
     commandQueue = [];
     updateQueueClass();
+    updateLongjumpButton(); // Button-Status aktualisieren
 }
 
 // Queue-Klasse aktualisieren
@@ -382,10 +480,12 @@ function updateQueueClass() {
 async function executeQueue() {
     if (commandQueue.length === 0 || isRunning) return;
 
+    usedLongjumps = 0; // Zurücksetzen für neue Ausführung
     isRunning = true;
     startBtn.disabled = true;
     clearBtn.disabled = true;
     commandButtons.forEach(btn => btn.disabled = true);
+    if (longjumpBtn) longjumpBtn.disabled = true;
 
     // Spielfigur auf Startfeld zurücksetzen
     const startCoord = parseCoordinate(levelData.start);
@@ -440,6 +540,7 @@ async function executeQueue() {
     startBtn.disabled = false;
     clearBtn.disabled = false;
     commandButtons.forEach(btn => btn.disabled = false);
+    updateLongjumpButton();
 }
 
 // Einzelnen Befehl ausführen
@@ -448,6 +549,7 @@ async function executeCommand(command) {
         case 'forward':
             moveForward(1);
             updatePlayerDisplay();
+            checkLongjumpPickup();
             break;
         case 'left':
             turnLeft();
@@ -459,6 +561,11 @@ async function executeCommand(command) {
             break;
         case 'jump':
             await performJump();
+            checkLongjumpPickup();
+            break;
+        case 'longjump':
+            await performLongJump();
+            checkLongjumpPickup();
             break;
     }
 }
@@ -498,7 +605,8 @@ async function performJump() {
     
     const dir = directions[playerDirection];
     const startPos = { ...playerPosition };
-    const endPos = { x: startPos.x + dir.x * 2, y: startPos.y + dir.y * 2 };
+    const jumpDistance = 2; // Normaler Sprung ist immer 2 Felder
+    const endPos = { x: startPos.x + dir.x * jumpDistance, y: startPos.y + dir.y * jumpDistance };
     
     // Startposition
     updatePlayerDisplay();
@@ -563,6 +671,95 @@ async function performJump() {
             requestAnimationFrame(animate);
         } else {
             // Animation beendet
+            playerPosition = endPos;
+            player.remove();
+            updatePlayerDisplay();
+        }
+    };
+    
+    requestAnimationFrame(animate);
+    await sleep(duration);
+}
+
+// Weitsprung mit Animation (3 Felder)
+async function performLongJump() {
+    // Prüfe ob genug Weitsprünge gesammelt wurden
+    if (usedLongjumps >= longjumpCount) {
+        // Nicht genug Weitsprünge gesammelt - normale Bewegung stattdessen (oder skip)
+        return; // Einfach überspringen
+    }
+    
+    usedLongjumps++; // Weitsprung verbrauchen
+    
+    const directions = [
+        { x: 0, y: -1 },  // Nord
+        { x: 1, y: 0 },   // Ost
+        { x: 0, y: 1 },   // Süd
+        { x: -1, y: 0 }   // West
+    ];
+    
+    const dir = directions[playerDirection];
+    const startPos = { ...playerPosition };
+    const jumpDistance = 3;
+    const endPos = { x: startPos.x + dir.x * jumpDistance, y: startPos.y + dir.y * jumpDistance };
+    
+    // Startposition
+    updatePlayerDisplay();
+    const startCell = getCellAt(startPos.x, startPos.y);
+    if (!startCell) return;
+    
+    const player = startCell.querySelector('.player');
+    if (!player) return;
+    
+    const startRect = startCell.getBoundingClientRect();
+    const endCell = getCellAt(endPos.x, endPos.y);
+    if (!endCell) {
+        playerPosition = endPos;
+        return;
+    }
+    const endRect = endCell.getBoundingClientRect();
+    
+    // Zu fixer Positionierung mit fester Größe wechseln
+    const playerSize = player.offsetWidth;
+    const startX = startRect.left + startRect.width / 2 - playerSize / 2;
+    const startY = startRect.top + startRect.height / 2 - playerSize / 2;
+    const endX = endRect.left + endRect.width / 2 - playerSize / 2;
+    const endY = endRect.top + endRect.height / 2 - playerSize / 2;
+    
+    player.style.position = 'fixed';
+    player.style.width = playerSize + 'px';
+    player.style.height = playerSize + 'px';
+    player.style.left = startX + 'px';
+    player.style.top = startY + 'px';
+    player.style.transition = 'none';
+    player.style.zIndex = '200';
+    
+    // Animation mit JavaScript (höherer Sprung)
+    const duration = 700;
+    const startTime = Date.now();
+    const jumpHeight = playerSize * 1.2; // Höher als normaler Sprung
+    
+    const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing-Funktion
+        const eased = progress < 0.5 
+            ? 2 * progress * progress 
+            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        
+        // Parabel für den Sprung
+        const parabola = 4 * progress * (1 - progress);
+        
+        const currentX = startX + (endX - startX) * eased;
+        const currentY = startY + (endY - startY) * eased - jumpHeight * parabola;
+        
+        player.style.left = currentX + 'px';
+        player.style.top = currentY + 'px';
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
             playerPosition = endPos;
             player.remove();
             updatePlayerDisplay();
@@ -639,6 +836,7 @@ function deleteQueueItem(item) {
         commandQueue.push(queueItem.dataset.command);
     });
     updateQueueClass();
+    updateLongjumpButton(); // Button-Status aktualisieren
 }
 
 // Starte Drag-Modus für ein Item

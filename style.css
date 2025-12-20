@@ -147,6 +147,21 @@ h2 {
     background: #f4d03f;
 }
 
+.grid-cell.longjump {
+    background: #f39c12;
+    position: relative;
+}
+
+.longjump-symbol {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3.5vh;
+    z-index: 10;
+    pointer-events: none;
+}
+
 .grid-cell.start {
     background: #e74c3c;
 }

@@ -132,6 +132,10 @@
     background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
 }
 
+.thumbnail-cell.longjump {
+    background: linear-gradient(135deg, #f39c12 0%, #f59e0b 100%);
+}
+
 .thumbnail-cell.start {
     background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
 }

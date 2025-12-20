@@ -6,6 +6,7 @@ let currentTool = 'sand';
 let gridData = [];
 let startPos = null;
 let goalPos = null;
+let longjumpFields = []; // Positionen der Weitsprung-Felder
 
 // DOM-Elemente
 const editorGrid = document.getElementById('editorGrid');
@@ -94,7 +95,18 @@ function loadMapIntoEditor(data, code) {
             updateGridData(x, y, 'goal');
         }
     }
-    
+        // Weitsprung-Felder setzen
+    if (data.longjump && Array.isArray(data.longjump)) {
+        data.longjump.forEach(pos => {
+            const [x, y] = pos.split('x').map(Number);
+            const cell = getCellAt(x, y);
+            if (cell) {
+                cell.className = 'editor-cell longjump';
+                updateGridData(x, y, 'longjump');
+                longjumpFields.push({ x, y });
+            }
+        });
+    }
     // Sand-Felder setzen
     if (data.sand && Array.isArray(data.sand)) {
         data.sand.forEach(pos => {
@@ -281,6 +293,14 @@ function handleCellClick(e) {
         startPos = { x, y };
     } else if (currentTool === 'goal') {
         goalPos = { x, y };
+    } else if (currentTool === 'longjump') {
+        // Zur Weitsprung-Liste hinzufügen
+        if (!longjumpFields.some(pos => pos.x === x && pos.y === y)) {
+            longjumpFields.push({ x, y });
+        }
+    } else if (currentTool === 'sand' || currentTool === 'water') {
+        // Weitsprung-Feld entfernen falls vorhanden
+        longjumpFields = longjumpFields.filter(pos => !(pos.x === x && pos.y === y));
     }
 }
 
@@ -312,6 +332,7 @@ function showConfirmModal() {
 function clearGrid() {
     startPos = null;
     goalPos = null;
+    longjumpFields = [];
     createGrid();
     codeDisplay.textContent = 'Noch nicht gespeichert';
 }
@@ -356,7 +377,7 @@ function isMapSolvable() {
                 newY >= 0 && newY < GRID_HEIGHT) {
                 
                 const cellData = getGridData(newX, newY);
-                if (cellData && (cellData.type === 'sand' || cellData.type === 'start' || cellData.type === 'goal')) {
+                if (cellData && (cellData.type === 'sand' || cellData.type === 'longjump' || cellData.type === 'start' || cellData.type === 'goal')) {
                     visited.add(key);
                     queue.push({ x: newX, y: newY });
                 }
@@ -377,9 +398,35 @@ function isMapSolvable() {
                 if (middleCell && middleCell.type === 'water') {
                     // Das Zielfeld muss begehbar sein
                     const targetCell = getGridData(jumpX, jumpY);
-                    if (targetCell && (targetCell.type === 'sand' || targetCell.type === 'start' || targetCell.type === 'goal')) {
+                    if (targetCell && (targetCell.type === 'sand' || targetCell.type === 'longjump' || targetCell.type === 'start' || targetCell.type === 'goal')) {
                         visited.add(jumpKey);
                         queue.push({ x: jumpX, y: jumpY });
+                    }
+                }
+            }
+            
+            // Weitsprung-Bewegung (3 Felder über 2 Wasser) - nur wenn Weitsprung-Felder existieren
+            if (longjumpFields.length > 0) {
+                const longJumpX = current.x + dir.dx * 3;
+                const longJumpY = current.y + dir.dy * 3;
+                const longJumpKey = `${longJumpX},${longJumpY}`;
+
+                if (!visited.has(longJumpKey) && 
+                    longJumpX >= 0 && longJumpX < GRID_WIDTH && 
+                    longJumpY >= 0 && longJumpY < GRID_HEIGHT) {
+                    
+                    // Beide mittleren Felder müssen Wasser sein
+                    const middle1Cell = getGridData(current.x + dir.dx, current.y + dir.dy);
+                    const middle2Cell = getGridData(current.x + dir.dx * 2, current.y + dir.dy * 2);
+                    
+                    if (middle1Cell && middle1Cell.type === 'water' && 
+                        middle2Cell && middle2Cell.type === 'water') {
+                        // Das Zielfeld muss begehbar sein
+                        const longTargetCell = getGridData(longJumpX, longJumpY);
+                        if (longTargetCell && (longTargetCell.type === 'sand' || longTargetCell.type === 'longjump' || longTargetCell.type === 'start' || longTargetCell.type === 'goal')) {
+                            visited.add(longJumpKey);
+                            queue.push({ x: longJumpX, y: longJumpY });
+                        }
                     }
                 }
             }
@@ -396,7 +443,8 @@ function generateLevelHash(levelData) {
     const dataString = JSON.stringify({
         start: levelData.start,
         goal: levelData.goal,
-        sand: levelData.sand.sort() // Sortieren um Reihenfolge zu normalisieren
+        sand: levelData.sand.sort(), // Sortieren um Reihenfolge zu normalisieren
+        longjump: (levelData.longjump || []).sort()
     });
     
     // Einfache Hash-Funktion
@@ -438,8 +486,9 @@ async function saveLevel() {
     }
 
     const sandCells = gridData.filter(cell => cell.type === 'sand');
-    if (sandCells.length === 0) {
-        showValidationModal('Bitte setze mindestens ein Sand-Feld!');
+    const longjumpCells = gridData.filter(cell => cell.type === 'longjump');
+    if (sandCells.length === 0 && longjumpCells.length === 0) {
+        showValidationModal('Bitte setze mindestens ein Sand-Feld oder Weitsprung-Feld!');
         return;
     }
 
@@ -454,7 +503,8 @@ async function saveLevel() {
     const levelData = {
         start: `${startPos.x}x${startPos.y}`,
         goal: `${goalPos.x}x${goalPos.y}`,
-        sand: sandCells.map(cell => `${cell.x}x${cell.y}`)
+        sand: sandCells.map(cell => `${cell.x}x${cell.y}`),
+        longjump: longjumpCells.map(cell => `${cell.x}x${cell.y}`)
     };
 
     // Prüfe ob diese Karte bereits gespeichert wurde

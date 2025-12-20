@@ -56,6 +56,11 @@ function createLevelThumbnail(levelData) {
                 cellType = 'sand';
             }
             
+            // Prüfen ob Weitsprung
+            if (levelData.longjump && levelData.longjump.includes(coordStr)) {
+                cellType = 'longjump';
+            }
+            
             // Prüfen ob Start
             if (levelData.start === coordStr) {
                 cellType = 'start';

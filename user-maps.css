@@ -255,6 +255,11 @@ body {
     background-color: #f4d03f;
 }
 
+.thumbnail-grid .thumbnail-cell.longjump,
+.thumbnail-grid .thumb-cell.longjump {
+    background-color: #f39c12;
+}
+
 .thumbnail-grid .thumbnail-cell.water,
 .thumbnail-grid .thumb-cell.water {
     background-color: #4a90e2;
