@@ -45,6 +45,20 @@
         </div>
     </div>
 
+    <!-- Lösch-Bestätigungs-Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ Karte löschen?</h2>
+            <p>Möchtest du diese Karte wirklich löschen?</p>
+            <p class="info-text">Code: <strong id="deleteCode"></strong></p>
+            <p class="info-text">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            <div style="display: flex; gap: 1vw; justify-content: center; margin-top: 2vh;">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Ja, löschen</button>
+                <button id="cancelDeleteBtn" class="btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
     <div id="userIdDisplay" class="user-id-display"></div>
     <script src="user-id.js"></script>
     <script src="utils.js"></script>

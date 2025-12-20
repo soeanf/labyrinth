@@ -3,6 +3,12 @@ const levelCodeInput = document.getElementById('levelCodeInput');
 const loadBtn = document.getElementById('loadBtn');
 const mapsList = document.getElementById('mapsList');
 const loadingModal = document.getElementById('loadingModal');
+const deleteModal = document.getElementById('deleteModal');
+const deleteCodeDisplay = document.getElementById('deleteCode');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+let mapToDelete = null;
 
 // Initialisierung
 function init() {
@@ -17,6 +23,12 @@ function setupEventListeners() {
         if (e.key === 'Enter') {
             loadLevelByCode();
         }
+    });
+    
+    confirmDeleteBtn.addEventListener('click', deleteMap);
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.classList.remove('active');
+        mapToDelete = null;
     });
 }
 
@@ -64,7 +76,12 @@ function displayMaps(maps) {
         card.innerHTML = `
             <div class="map-header">
                 <div class="map-code">${map.code}</div>
-                ${isOwnMap ? '<button class="edit-btn" title="Karte bearbeiten">✏️</button>' : ''}
+                ${isOwnMap ? `
+                    <div class="action-buttons">
+                        <button class="edit-btn" title="Karte bearbeiten">✏️</button>
+                        <button class="delete-btn" title="Karte löschen">🗑️</button>
+                    </div>
+                ` : ''}
             </div>
             <div class="map-info">${map.sandCount} Sand-Felder</div>
         `;
@@ -75,9 +92,16 @@ function displayMaps(maps) {
         // Event-Listener
         if (isOwnMap) {
             const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+            
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Verhindert das Laden des Levels
                 editMap(map.code, map.data);
+            });
+            
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Verhindert das Laden des Levels
+                confirmDeleteMap(map.code);
             });
         }
         
@@ -132,6 +156,45 @@ function editMap(code, data) {
     
     // Wechsel zum Editor
     window.location.href = 'editor.html?edit=' + code;
+}
+
+// Bestätigung zum Löschen anzeigen
+function confirmDeleteMap(code) {
+    mapToDelete = code;
+    deleteCodeDisplay.textContent = code;
+    deleteModal.classList.add('active');
+}
+
+// Karte löschen
+async function deleteMap() {
+    if (!mapToDelete) return;
+    
+    try {
+        const response = await fetch('delete-level.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                code: mapToDelete
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Schließe Modal
+            deleteModal.classList.remove('active');
+            mapToDelete = null;
+            
+            // Aktualisiere die Liste
+            loadAvailableMaps();
+        } else {
+            alert('Fehler beim Löschen: ' + result.error);
+        }
+    } catch (error) {
+        alert('Fehler beim Löschen: ' + error.message);
+    }
 }
 
 // Initialisierung starten
