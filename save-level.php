@@ -13,6 +13,7 @@ if (!$data || !isset($data['code']) || !isset($data['data'])) {
 $code = $data['code'];
 $levelData = $data['data'];
 $deviceInfo = isset($data['device']) ? $data['device'] : null;
+$overwrite = isset($data['overwrite']) ? $data['overwrite'] : false;
 
 // Client-IP hinzufügen
 if ($deviceInfo) {
@@ -35,8 +36,8 @@ if (!is_dir($dir)) {
 $filename = $dir . '/' . $code . '.json';
 
 // Prüfen ob Code bereits existiert
-if (file_exists($filename)) {
-    // Neuen Code generieren und erneut versuchen
+if (file_exists($filename) && !$overwrite) {
+    // Nur wenn NICHT überschrieben werden soll, neuen Code generieren
     $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $code = '';
     for ($i = 0; $i < 6; $i++) {

@@ -48,22 +48,38 @@ async function loadAvailableMaps() {
 // Maps anzeigen
 function displayMaps(maps) {
     mapsList.innerHTML = '';
+    const currentUserId = localStorage.getItem('labyrinth_user_id');
 
     maps.forEach(map => {
         const card = document.createElement('div');
         card.className = 'map-card';
+        
+        // Prüfe ob der Benutzer der Ersteller ist
+        const isOwnMap = map.data.creator && map.data.creator.userId === currentUserId;
         
         // Thumbnail erstellen
         const thumbnail = createLevelThumbnail(map.data);
         thumbnail.className = 'thumbnail-grid'; // Für Kompatibilität mit user-maps.css
         
         card.innerHTML = `
-            <div class="map-code">${map.code}</div>
+            <div class="map-header">
+                <div class="map-code">${map.code}</div>
+                ${isOwnMap ? '<button class="edit-btn" title="Karte bearbeiten">✏️</button>' : ''}
+            </div>
             <div class="map-info">${map.sandCount} Sand-Felder</div>
         `;
         
-        // Thumbnail zwischen Code und Info einfügen
+        // Thumbnail zwischen Header und Info einfügen
         card.insertBefore(thumbnail, card.querySelector('.map-info'));
+        
+        // Event-Listener
+        if (isOwnMap) {
+            const editBtn = card.querySelector('.edit-btn');
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Verhindert das Laden des Levels
+                editMap(map.code, map.data);
+            });
+        }
         
         card.addEventListener('click', () => loadLevel(map.code));
         mapsList.appendChild(card);
@@ -106,6 +122,16 @@ async function loadLevel(code) {
         loadingModal.classList.remove('active');
         alert('Level konnte nicht geladen werden: ' + error.message);
     }
+}
+
+// Karte zum Bearbeiten im Editor laden
+function editMap(code, data) {
+    // Speichere die Karten-Daten und den Code für den Editor
+    localStorage.setItem('editMapData', JSON.stringify(data));
+    localStorage.setItem('editMapCode', code);
+    
+    // Wechsel zum Editor
+    window.location.href = 'editor.html?edit=' + code;
 }
 
 // Initialisierung starten

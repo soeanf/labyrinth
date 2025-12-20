@@ -31,6 +31,9 @@ function init() {
     createGrid();
     setupEventListeners();
     ensureUserId();
+    
+    // Prüfe ob eine Karte zum Bearbeiten geladen werden soll
+    loadEditMapIfPresent();
 }
 
 // Eindeutige User-ID erstellen oder laden
@@ -44,6 +47,124 @@ function ensureUserId() {
     }
     
     return userId;
+}
+
+// Lade Karte zum Bearbeiten, falls im localStorage
+function loadEditMapIfPresent() {
+    const editMapData = localStorage.getItem('editMapData');
+    const editMapCode = localStorage.getItem('editMapCode');
+    
+    if (editMapData && editMapCode) {
+        try {
+            const data = JSON.parse(editMapData);
+            loadMapIntoEditor(data, editMapCode);
+            
+            // Zeige Hinweis dass Karte bearbeitet wird
+            codeDisplay.textContent = `Bearbeite: ${editMapCode}`;
+            codeDisplay.style.color = '#e67e22';
+        } catch (error) {
+            console.error('Fehler beim Laden der Karte:', error);
+        }
+    }
+}
+
+// Lade Kartendaten in den Editor
+function loadMapIntoEditor(data, code) {
+    // Grid zurücksetzen
+    createGrid();
+    
+    // Start-Position setzen
+    if (data.start) {
+        const [x, y] = data.start.split('x').map(Number);
+        startPos = { x, y };
+        const cell = getCellElement(x, y);
+        if (cell) {
+            cell.className = 'editor-cell start';
+            updateGridData(x, y, 'start');
+        }
+    }
+    
+    // Ziel-Position setzen
+    if (data.goal) {
+        const [x, y] = data.goal.split('x').map(Number);
+        goalPos = { x, y };
+        const cell = getCellElement(x, y);
+        if (cell) {
+            cell.className = 'editor-cell goal';
+            updateGridData(x, y, 'goal');
+        }
+    }
+    
+    // Sand-Felder setzen
+    if (data.sand && Array.isArray(data.sand)) {
+        data.sand.forEach(pos => {
+            const [x, y] = pos.split('x').map(Number);
+            const cell = getCellElement(x, y);
+            if (cell) {
+                cell.className = 'editor-cell sand';
+                updateGridData(x, y, 'sand');
+            }
+        });
+    }
+}
+
+// Lade Karte zum Bearbeiten, falls im localStorage
+function loadEditMapIfPresent() {
+    const editMapData = localStorage.getItem('editMapData');
+    const editMapCode = localStorage.getItem('editMapCode');
+    
+    if (editMapData && editMapCode) {
+        try {
+            const data = JSON.parse(editMapData);
+            loadMapIntoEditor(data, editMapCode);
+            
+            // Zeige Hinweis dass Karte bearbeitet wird
+            codeDisplay.textContent = `Bearbeite: ${editMapCode}`;
+            codeDisplay.style.color = '#e67e22';
+        } catch (error) {
+            console.error('Fehler beim Laden der Karte:', error);
+        }
+    }
+}
+
+// Lade Kartendaten in den Editor
+function loadMapIntoEditor(data, code) {
+    // Grid zurücksetzen
+    createGrid();
+    
+    // Start-Position setzen
+    if (data.start) {
+        const [x, y] = data.start.split('x').map(Number);
+        startPos = { x, y };
+        const cell = getCellElement(x, y);
+        if (cell) {
+            cell.className = 'editor-cell start';
+            updateGridData(x, y, 'start');
+        }
+    }
+    
+    // Ziel-Position setzen
+    if (data.goal) {
+        const [x, y] = data.goal.split('x').map(Number);
+        goalPos = { x, y };
+        const cell = getCellElement(x, y);
+        if (cell) {
+            cell.className = 'editor-cell goal';
+            updateGridData(x, y, 'goal');
+        }
+    }
+    
+    // Sand-Felder setzen
+    if (data.sand && Array.isArray(data.sand)) {
+        data.sand.forEach(pos => {
+            const [x, y] = pos.split('x').map(Number);
+            const cell = getCellElement(x, y);
+            if (cell) {
+                cell.className = 'editor-cell sand';
+                updateGridData(x, y, 'sand');
+            }
+        });
+    }
 }
 
 // Grid erstellen
@@ -338,13 +459,16 @@ async function saveLevel() {
 
     // Prüfe ob diese Karte bereits gespeichert wurde
     const levelHash = generateLevelHash(levelData);
-    if (isLevelAlreadySaved(levelHash)) {
+    const editMapCode = localStorage.getItem('editMapCode');
+    
+    // Wenn wir eine Karte bearbeiten, erlaube das Überschreiben
+    if (!editMapCode && isLevelAlreadySaved(levelHash)) {
         duplicateModal.classList.add('active');
         return; // Benutzer kann nicht erneut speichern
     }
 
-    // 6-stelligen Code generieren
-    const levelCode = generateLevelCode();
+    // 6-stelligen Code generieren oder bestehenden Code verwenden
+    const levelCode = editMapCode || generateLevelCode();
 
     // Browser-Informationen sammeln
     const deviceInfo = {
@@ -366,18 +490,26 @@ async function saveLevel() {
             body: JSON.stringify({
                 code: levelCode,
                 data: levelData,
-                device: deviceInfo
+                device: deviceInfo,
+                overwrite: !!editMapCode // true wenn wir eine Karte bearbeiten
             })
         });
 
         const result = await response.json();
 
         if (result.success) {
-            // Hash zur Liste gespeicherter Karten hinzufügen
-            addSavedLevelHash(levelHash);
+            // Hash zur Liste gespeicherter Karten hinzufügen (nur wenn es eine neue Karte ist)
+            if (!editMapCode) {
+                addSavedLevelHash(levelHash);
+            }
+            
+            // Bereinige Edit-Mode
+            localStorage.removeItem('editMapData');
+            localStorage.removeItem('editMapCode');
             
             // Erfolg anzeigen
             codeDisplay.textContent = levelCode;
+            codeDisplay.style.color = '';
             savedCodeDisplay.textContent = levelCode;
             successModal.classList.add('active');
         } else {
