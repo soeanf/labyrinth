@@ -2,8 +2,6 @@
 
 Ein browserbasiertes Lernspiel für den Informatikunterricht in Klasse 5 zum Thema **Handlungsabläufe und algorithmisches Denken**.
 
-![Labyrinth Game](screenshot.png)
-
 ## 📋 Über das Projekt
 
 Labyrinth ist ein pädagogisches Spiel, das Schüler:innen spielerisch an grundlegende Programmierkonzepte heranführt. Durch das Erstellen von Befehlssequenzen lernen sie:
@@ -55,7 +53,7 @@ Die Befehle werden per Drag & Drop in eine Warteschlange gezogen und dann gemein
 
 1. Repository klonen oder downloaden:
 ```bash
-git clone https://github.com/soerenf/labyrinth.git
+git clone https://github.com/soeanf/labyrinth.git
 cd labyrinth
 ```
 
