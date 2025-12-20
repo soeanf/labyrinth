@@ -12,9 +12,22 @@ let mapToDelete = null;
 
 // Initialisierung
 function init() {
+    // Stelle sicher, dass das Loading-Modal geschlossen ist
+    loadingModal.classList.remove('active');
+    
     setupEventListeners();
     loadAvailableMaps();
 }
+
+// Schließe Modal auch bei pageshow (wird bei history.back() getriggert)
+window.addEventListener('pageshow', function() {
+    if (loadingModal) {
+        loadingModal.classList.remove('active');
+    }
+});
+
+// Initialisierung starten
+init();
 
 // Event-Listeners
 function setupEventListeners() {
@@ -196,6 +209,13 @@ async function deleteMap() {
         alert('Fehler beim Löschen: ' + error.message);
     }
 }
+
+// Schließe Modal auch bei pageshow (wird bei history.back() getriggert)
+window.addEventListener('pageshow', function() {
+    if (loadingModal) {
+        loadingModal.classList.remove('active');
+    }
+});
 
 // Initialisierung starten
 init();
