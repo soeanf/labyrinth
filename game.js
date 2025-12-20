@@ -153,10 +153,6 @@ function setupEventListeners() {
             window.location.href = 'index.html';
         }
     });
-
-    // Drag & Drop für Queue
-    commandQueueEl.addEventListener('dragover', handleDragOver);
-    commandQueueEl.addEventListener('drop', handleDrop);
 }
 
 // Level laden
@@ -293,7 +289,6 @@ function updatePlayerDisplay() {
 function addCommandToQueue(command) {
     const queueItem = document.createElement('div');
     queueItem.className = 'queue-item';
-    queueItem.draggable = true;
     queueItem.dataset.command = command;
 
     const arrow = document.createElement('div');
@@ -323,16 +318,42 @@ function addCommandToQueue(command) {
 
     queueItem.appendChild(arrow);
     queueItem.appendChild(label);
-
-    // Drag-Events (Maus)
-    queueItem.addEventListener('dragstart', handleDragStart);
-    queueItem.addEventListener('dragend', handleDragEnd);
-    queueItem.addEventListener('dragover', (e) => e.preventDefault());
     
-    // Touch-Events (iPad/Mobile)
-    queueItem.addEventListener('touchstart', handleTouchStart);
-    queueItem.addEventListener('touchmove', handleTouchMove);
-    queueItem.addEventListener('touchend', handleTouchEnd);
+    // Aktions-Buttons Container
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'queue-actions';
+    
+    // Verschieben-Button (links positioniert)
+    const moveBtn = document.createElement('button');
+    moveBtn.className = 'queue-move-btn';
+    moveBtn.innerHTML = '<img src="changeorder.svg" alt="↕" />';
+    moveBtn.title = 'Position ändern';
+    moveBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        startDragMode(queueItem, e);
+    });
+    moveBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        startDragMode(queueItem, e);
+    }, { passive: false });
+    
+    // Löschen-Button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'queue-delete-btn';
+    deleteBtn.innerHTML = '🗑️'; // Mülltonne
+    deleteBtn.title = 'Löschen';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteQueueItem(queueItem);
+    });
+    
+    actionsDiv.appendChild(deleteBtn);
+    
+    // moveBtn ganz vorne einfügen (vor arrow)
+    queueItem.insertBefore(moveBtn, queueItem.firstChild);
+    queueItem.appendChild(actionsDiv);
 
     commandQueueEl.appendChild(queueItem);
     commandQueue.push(command);
@@ -601,61 +622,107 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Drag & Drop Funktionen
+// Verschiebe- und Lösch-Funktionen - Variablen
 let draggedItem = null;
+let isDragMode = false;
 let touchStartY = 0;
 let touchStartX = 0;
 let touchClone = null;
 
-function handleDragStart(e) {
-    draggedItem = e.target;
-    e.target.classList.add('dragging');
+// Lösche ein Queue-Item
+function deleteQueueItem(item) {
+    item.remove();
+    // Queue-Array neu aufbauen
+    commandQueue = [];
+    const queueItems = commandQueueEl.querySelectorAll('.queue-item');
+    queueItems.forEach(queueItem => {
+        commandQueue.push(queueItem.dataset.command);
+    });
+    updateQueueClass();
 }
 
-function handleDragEnd(e) {
-    e.target.classList.remove('dragging');
+// Starte Drag-Modus für ein Item
+function startDragMode(item, event) {
+    if (isDragMode) return;
     
-    // Prüfen ob außerhalb der Queue gedroppt wurde
-    const queueRect = commandQueueEl.getBoundingClientRect();
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
+    isDragMode = true;
+    draggedItem = item;
+    item.classList.add('dragging');
     
-    const isOutside = mouseX < queueRect.left || mouseX > queueRect.right ||
-                      mouseY < queueRect.top || mouseY > queueRect.bottom;
-    
-    if (isOutside) {
-        // Element löschen
-        e.target.remove();
-        // Queue-Array neu aufbauen
-        commandQueue = [];
-        const queueItems = commandQueueEl.querySelectorAll('.queue-item');
-        queueItems.forEach(item => {
-            commandQueue.push(item.dataset.command);
-        });
-        updateQueueClass();
+    // Unterscheide zwischen Touch und Maus
+    if (event.type === 'touchstart') {
+        const touch = event.touches[0];
+        touchStartY = touch.clientY;
+        touchStartX = touch.clientX;
+        
+        // Touch-Events
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+    } else if (event.type === 'mousedown') {
+        // Maus-Events - Track mousemove wie bei Touch
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        touchStartY = mouseY;
+        touchStartX = mouseX;
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     }
 }
 
-function handleDragOver(e) {
-    e.preventDefault();
+// Maus-Move-Handler (analog zu Touch)
+function handleMouseMove(e) {
+    if (!isDragMode || !draggedItem) return;
+    
+    // Klon für visuelles Feedback erstellen (nur beim ersten Move)
+    if (!touchClone) {
+        touchClone = draggedItem.cloneNode(true);
+        touchClone.style.position = 'fixed';
+        touchClone.style.pointerEvents = 'none';
+        touchClone.style.opacity = '0.8';
+        touchClone.style.zIndex = '1000';
+        touchClone.style.width = draggedItem.offsetWidth + 'px';
+        document.body.appendChild(touchClone);
+    }
+    
+    // Klon bewegen
+    touchClone.style.left = e.clientX - touchClone.offsetWidth / 2 + 'px';
+    touchClone.style.top = e.clientY - touchClone.offsetHeight / 2 + 'px';
+    
+    // Element unter dem Cursor finden und neu positionieren
     const afterElement = getDragAfterElement(commandQueueEl, e.clientY);
-    const dragging = document.querySelector('.dragging');
-    
     if (afterElement == null) {
-        commandQueueEl.appendChild(dragging);
+        commandQueueEl.appendChild(draggedItem);
     } else {
-        commandQueueEl.insertBefore(dragging, afterElement);
+        commandQueueEl.insertBefore(draggedItem, afterElement);
     }
 }
 
-function handleDrop(e) {
-    e.preventDefault();
+// Maus-Up-Handler (analog zu Touch-End)
+function handleMouseUp(e) {
+    if (!isDragMode || !draggedItem) return;
+    
+    // Event-Listener entfernen
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
+    // Klon entfernen
+    if (touchClone) {
+        touchClone.remove();
+        touchClone = null;
+    }
+    
+    draggedItem.classList.remove('dragging');
+    isDragMode = false;
+    draggedItem = null;
+    
     // Queue-Array neu aufbauen
     commandQueue = [];
     const queueItems = commandQueueEl.querySelectorAll('.queue-item');
     queueItems.forEach(item => {
         commandQueue.push(item.dataset.command);
     });
+    updateQueueClass();
 }
 
 function getDragAfterElement(container, y) {
@@ -673,40 +740,27 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Touch-Event-Handler für iPad
-function handleTouchStart(e) {
-    const touch = e.touches[0];
-    touchStartY = touch.clientY;
-    touchStartX = touch.clientX;
-    draggedItem = e.target.closest('.queue-item');
+// Touch-Event-Handler für Mobile
+function handleTouchMove(e) {
+    if (!isDragMode || !draggedItem) return;
+    e.preventDefault();
     
-    if (draggedItem) {
-        draggedItem.classList.add('dragging');
-        
-        // Klon für visuelles Feedback erstellen
+    const touch = e.touches[0];
+    
+    // Klon für visuelles Feedback erstellen (nur beim ersten Move)
+    if (!touchClone) {
         touchClone = draggedItem.cloneNode(true);
         touchClone.style.position = 'fixed';
         touchClone.style.pointerEvents = 'none';
         touchClone.style.opacity = '0.8';
         touchClone.style.zIndex = '1000';
         touchClone.style.width = draggedItem.offsetWidth + 'px';
-        touchClone.style.left = touch.clientX - draggedItem.offsetWidth / 2 + 'px';
-        touchClone.style.top = touch.clientY - draggedItem.offsetHeight / 2 + 'px';
         document.body.appendChild(touchClone);
     }
-}
-
-function handleTouchMove(e) {
-    if (!draggedItem) return;
-    e.preventDefault();
-    
-    const touch = e.touches[0];
     
     // Klon bewegen
-    if (touchClone) {
-        touchClone.style.left = touch.clientX - touchClone.offsetWidth / 2 + 'px';
-        touchClone.style.top = touch.clientY - touchClone.offsetHeight / 2 + 'px';
-    }
+    touchClone.style.left = touch.clientX - touchClone.offsetWidth / 2 + 'px';
+    touchClone.style.top = touch.clientY - touchClone.offsetHeight / 2 + 'px';
     
     // Element in Queue neu positionieren
     const afterElement = getDragAfterElement(commandQueueEl, touch.clientY);
@@ -719,9 +773,8 @@ function handleTouchMove(e) {
 }
 
 function handleTouchEnd(e) {
-    if (!draggedItem) return;
+    if (!isDragMode || !draggedItem) return;
     
-    const touch = e.changedTouches[0];
     draggedItem.classList.remove('dragging');
     
     // Klon entfernen
@@ -730,18 +783,9 @@ function handleTouchEnd(e) {
         touchClone = null;
     }
     
-    // Prüfen ob außerhalb der Queue gedroppt wurde
-    const queueRect = commandQueueEl.getBoundingClientRect();
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    
-    const isOutside = touchX < queueRect.left || touchX > queueRect.right ||
-                      touchY < queueRect.top || touchY > queueRect.bottom;
-    
-    if (isOutside) {
-        // Element löschen
-        draggedItem.remove();
-    }
+    // Event-Listener entfernen
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
     
     // Queue-Array neu aufbauen
     commandQueue = [];
@@ -751,5 +795,6 @@ function handleTouchEnd(e) {
     });
     updateQueueClass();
     
+    isDragMode = false;
     draggedItem = null;
 }
