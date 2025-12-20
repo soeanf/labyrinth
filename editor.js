@@ -13,7 +13,9 @@ const toolButtons = document.querySelectorAll('.tool-btn');
 const clearBtn = document.getElementById('clearBtn');
 const saveBtn = document.getElementById('saveBtn');
 const successModal = document.getElementById('successModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
+const continueEditBtn = document.getElementById('continueEditBtn');
+const newMapBtn = document.getElementById('newMapBtn');
+const toOverviewBtn = document.getElementById('toOverviewBtn');
 const confirmModal = document.getElementById('confirmModal');
 const confirmClearBtn = document.getElementById('confirmClearBtn');
 const cancelClearBtn = document.getElementById('cancelClearBtn');
@@ -83,8 +85,18 @@ function setupEventListeners() {
 
     clearBtn.addEventListener('click', showConfirmModal);
     saveBtn.addEventListener('click', saveLevel);
-    closeModalBtn.addEventListener('click', () => {
+    
+    continueEditBtn.addEventListener('click', () => {
         successModal.classList.remove('active');
+    });
+    
+    newMapBtn.addEventListener('click', () => {
+        successModal.classList.remove('active');
+        clearGrid();
+    });
+    
+    toOverviewBtn.addEventListener('click', () => {
+        window.location.href = 'user-maps.html';
     });
     
     confirmClearBtn.addEventListener('click', () => {
