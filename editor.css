@@ -73,7 +73,7 @@ body {
 }
 
 .tools-panel {
-    width: 250px;
+    width: 300px;
     flex-shrink: 0;
 }
 
@@ -197,7 +197,7 @@ body {
 .grid-container {
     flex: 1;
     display: flex;
-    justify-content: center;
+    width: 100%;
     align-items: flex-start;
 }
 
@@ -205,10 +205,10 @@ body {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: repeat(12, 1fr);
+    width: 100%;
     gap: 2px;
     background-color: #333;
     border: 3px solid #333;
-    width: min(90vh, 60vw);
     aspect-ratio: 1 / 1;
 }
 

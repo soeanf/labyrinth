@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1500px;
     margin: 0 auto;
     background: white;
     border-radius: 15px;
@@ -146,7 +146,7 @@ body {
 
 .maps-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2vh;
 }
 
@@ -199,11 +199,11 @@ body {
 }
 
 .edit-btn {
-    background: #3498db;
+    background: none;
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.6vh 1.2vw;
+    padding: 0.6vh 0.6vw;
     font-size: 2vh;
     cursor: pointer;
     transition: all 0.3s;
@@ -216,11 +216,11 @@ body {
 }
 
 .delete-btn {
-    background: #e74c3c;
+    background: none;
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.6vh 1.2vw;
+    padding: 0.6vh 0.6vw;
     font-size: 2vh;
     cursor: pointer;
     transition: all 0.3s;
@@ -239,7 +239,7 @@ body {
     gap: 1px;
     background-color: #333;
     border: 2px solid #333;
-    width: 60%;
+    width: 80%;
     aspect-ratio: 1 / 1;
     margin: 0 auto;
 }

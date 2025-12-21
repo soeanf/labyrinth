@@ -1,0 +1,23 @@
+{
+    "start": "2x5",
+    "goal": "9x5",
+    "sand": [
+        "3x5",
+        "4x5",
+        "5x4",
+        "5x5",
+        "8x5"
+    ],
+    "longjump": [
+        "5x3"
+    ],
+    "creator": {
+        "userId": "mj91tczjpa02u9whn",
+        "userAgent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/143.0.0.0 Safari\/537.36",
+        "platform": "Win32",
+        "language": "de-DE",
+        "screenResolution": "2560x1440",
+        "timestamp": "2025-12-21T09:46:17.216Z",
+        "ip": "::1"
+    }
+}
